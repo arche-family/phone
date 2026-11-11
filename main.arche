@@ -1,0 +1,137 @@
+/// Phone, the Arche phone's (docs/sprints.md T7 in arche-os), as Android's:
+/// three tabs. Keypad: the number typed, + for a country's code, a key
+/// less with ⌫, and Call, which the phone's call screen takes from there.
+/// Recents: the calls the phone had, the latest first, each by its
+/// contact's name or its number, whether it came, was made or was missed,
+/// and when; a tap calls it back. Contacts: the phone's contacts, a tap
+/// calls one. An app of the phone's world: it may make calls and read the
+/// calls the phone had (telephony) and read the contacts (contacts).
+import alloc;
+import contacts;
+import host_api;
+import std;
+import telephony;
+
+const KEYS: str = "123456789*0#";
+const KEYPAD: u32 = 0;
+const RECENTS: u32 = 1;
+const CONTACTS: u32 = 2;
+
+type Phone = struct {
+    tab: u32,
+    number: alloc.String,
+}
+
+fn init(host: &mut std.Host, a: alloc.Allocator) -> Phone {
+    return Phone { tab: KEYPAD, number: alloc.String.init(a) };
+}
+
+/// The name the contacts have for number; the number when they have none.
+fn who(all: &alloc.List(contacts.Contact), number: str, a: alloc.Allocator) -> alloc.String {
+    for c in all.items() {
+        if c.number.view().eq(number) {
+            return alloc.String.from(c.name.view(), a);
+        }
+    }
+    return alloc.String.from(number, a);
+}
+
+fn two(s: &mut alloc.String, n: i64) {
+    if n < 10 {
+        s.push_str("0");
+    }
+    s.push_u64(n as u64);
+}
+
+/// A call's line under its name: how it went, and when, as the user reads
+/// the time.
+fn said_of(c: &telephony.Call, offset_minutes: i64, a: alloc.Allocator) -> alloc.String {
+    var s = alloc.String.init(a);
+    if c.incoming and not c.answered {
+        s.push_str("Missed");
+    } else if c.incoming {
+        s.push_str("Incoming");
+    } else {
+        s.push_str("Outgoing");
+    }
+    s.push_str(" · ");
+    var minutes = (c.at_millis / 60000 + offset_minutes) % 1440;
+    if minutes < 0 {
+        minutes += 1440;
+    }
+    two(&mut s, n: minutes / 60);
+    s.push_str(":");
+    two(&mut s, n: minutes % 60);
+    return s;
+}
+
+fn keypad(state: &mut Phone, host: &mut std.Host, a: alloc.Allocator) {
+    var shown = alloc.String.from("Enter a number", a);
+    if state.number.len() > 0 {
+        shown = alloc.String.from(state.number.view(), a);
+    }
+    host_api.ui_heading(host, text: shown.view(), level: 1);
+    var k: usize = 0;
+    while k < 12 : (k += 1) {
+        if k % 3 == 0 {
+            host_api.ui_begin(host, kind: "row");
+        }
+        let key = KEYS[k..k + 1];
+        if host_api.ui_button(host, text: key) {
+            state.number.push_str(key);
+        }
+        if k % 3 == 2 {
+            host_api.ui_end(host);
+        }
+    }
+    host_api.ui_begin(host, kind: "row");
+    if host_api.ui_button(host, text: "+") {
+        state.number.push_str("+");
+    }
+    if host_api.ui_button(host, text: "⌫") and state.number.len() > 0 {
+        var kept = alloc.String.init(a);
+        kept.push_str(state.number.view()[0..state.number.len() - 1]);
+        state.number = kept;
+    }
+    if host_api.ui_button(host, text: "Call") and state.number.len() > 0 {
+        telephony.dial(host, number: state.number.view());
+    }
+    host_api.ui_end(host);
+}
+
+fn update(state: &mut Phone, host: &mut std.Host, a: alloc.Allocator) {
+    var tabs = alloc.List(alloc.String).init(a);
+    tabs.push(alloc.String.from("Keypad", a));
+    tabs.push(alloc.String.from("Recents", a));
+    tabs.push(alloc.String.from("Contacts", a));
+    state.tab = host_api.ui_choice(host, options: &tabs, selected: state.tab, a: a);
+    let people = contacts.list(host, a: a);
+    if state.tab == RECENTS {
+        let had = telephony.history(host, a: a);
+        if had.len() == 0 {
+            host_api.ui_label(host, text: "No calls yet");
+        }
+        let offset = host_api.utc_offset(host) as i64;
+        var k = had.len();
+        while k > 0 {
+            k -= 1;
+            let c = &had.items()[k];
+            let name = who(&people, number: c.number.view(), a: a);
+            let said = said_of(c, offset_minutes: offset, a: a);
+            if host_api.ui_tile(host, title: name.view(), subtitle: said.view()) {
+                telephony.dial(host, number: c.number.view());
+            }
+        }
+    } else if state.tab == CONTACTS {
+        if people.len() == 0 {
+            host_api.ui_label(host, text: "No contacts yet");
+        }
+        for c in people.items() {
+            if host_api.ui_tile(host, title: c.name.view(), subtitle: c.number.view()) {
+                telephony.dial(host, number: c.number.view());
+            }
+        }
+    } else {
+        keypad(state, host: host, a: a);
+    }
+}

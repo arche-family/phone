@@ -1,0 +1,6 @@
+name: phone
+version: 1
+title: Phone
+about: Calls: the keypad, the calls the phone had, and its contacts
+publisher: arche
+needs: telephony contacts
