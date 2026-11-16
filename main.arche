@@ -1,18 +1,24 @@
-/// Phone, the Arche phone's (docs/sprints.md T7 in arche-os), as Android's:
-/// three tabs. Keypad: the number typed, + for a country's code, a key
-/// less with ⌫, and Call, which the phone's call screen takes from there.
-/// Recents: the calls the phone had, the latest first, each by its
-/// contact's name or its number, whether it came, was made or was missed,
+/// Phone, the Arche phone's (docs/sprints.md T7, T10 in arche-os), as a
+/// phone's dialer: three sections along the bottom. Keypad: the number
+/// typed, large, over round keys, each its digit and its letters; + for a
+/// country's code, ⌫ a key less, and the green Call, which the phone's call
+/// screen takes from there. Recents: the calls the phone had, the latest
+/// first, each by its contact's name (or its number) on its picture, the
+/// name's first letter, whether it came, was made or was missed (in red),
 /// and when; a tap calls it back. Contacts: the phone's contacts, a tap
-/// calls one. An app of the phone's world: it may make calls and read the
-/// calls the phone had (telephony) and read the contacts (contacts).
+/// calls one. Its look is the phone's app kit (arche-lang's appkit). An app
+/// of the phone's world: it may make calls and read the calls the phone
+/// had (telephony) and read the contacts (contacts).
 import alloc;
+import appkit;
 import contacts;
+import dom;
 import host_api;
 import std;
 import telephony;
 
-const KEYS: str = "123456789*0#";
+const SHEET: str = ".dial { display: flex; flex-direction: column; justify-content: flex-end; flex-grow: 1; padding: 8px 0 0; } .number { font-size: 34px; text-align: center; padding: 8px 20px 18px; min-height: 44px; } .number.none { font-size: 18px; color: var(--kit-muted); padding-top: 18px; } .pad { display: grid; grid-template-columns: repeat(3, 76px); gap: 14px 28px; justify-content: center; } .key { width: 76px; height: 76px; border-radius: 38px; border: 0; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--kit-card); color: var(--kit-text); } .key .d { font-size: 30px; line-height: 1.1; font-weight: 400; } .key .l { font-size: 10px; line-height: 1.2; color: var(--kit-muted); font-weight: 500; } .bottom { display: grid; grid-template-columns: repeat(3, 76px); gap: 0 28px; justify-content: center; align-items: center; padding: 18px 0 14px; } .plus { background: transparent; } .plus .d { font-size: 26px; } .call { width: 76px; height: 76px; border-radius: 38px; border: 0; padding: 0; display: flex; align-items: center; justify-content: center; background: var(--kit-good); color: #ffffff; } .call .icon { font-size: 32px; } .erase { width: 76px; height: 56px; border: 0; padding: 0; display: flex; align-items: center; justify-content: center; background: transparent; color: var(--kit-muted); } .missed { color: var(--kit-danger); } .how { display: flex; flex-direction: row; align-items: center; gap: 4px; } .how .icon { font-size: 15px; } .again { color: var(--kit-good); } .hidden { display: none; }";
+
 const KEYPAD: u32 = 0;
 const RECENTS: u32 = 1;
 const CONTACTS: u32 = 2;
@@ -20,10 +26,158 @@ const CONTACTS: u32 = 2;
 type Phone = struct {
     tab: u32,
     number: alloc.String,
+    /// The page's nodes: the number, each section's page and tab, and the
+    /// lists and what they say when empty.
+    shown: u32,
+    pages: [3]u32,
+    tabs: [3]u32,
+    recents: u32,
+    no_calls: u32,
+    people: u32,
+    no_people: u32,
+    /// What the lists were made from, to make them again when it changes:
+    /// how many calls and contacts, and when the last call was.
+    calls_seen: i64,
+    people_seen: i64,
 }
 
 fn init(host: &mut std.Host, a: alloc.Allocator) -> Phone {
-    return Phone { tab: KEYPAD, number: alloc.String.init(a) };
+    let kit = appkit.css(a);
+    _ = dom.add_stylesheet(host, css: kit.view());
+    _ = dom.add_stylesheet(host, css: SHEET);
+    var markup = alloc.String.init(a);
+    markup.push_str("<div class='app'><div class='content'>");
+    // Keypad.
+    markup.push_str("<div class='dial page'><div class='number none'>Enter a number</div><div class='pad'>");
+    let letters = ",ABC,DEF,GHI,JKL,MNO,PQRS,TUV,WXYZ";
+    var k: u32 = 1;
+    while k <= 9 : (k += 1) {
+        key(&mut markup, digit: k, letters: field(letters, n: k - 1));
+    }
+    markup.push_str("<button class='key' data-k='d*'><div class='d'>*</div></button>");
+    markup.push_str("<button class='key' data-k='d0'><div class='d'>0</div></button>");
+    markup.push_str("<button class='key' data-k='d#'><div class='d'>#</div></button>");
+    markup.push_str("</div><div class='bottom'><button class='key plus' data-k='d+'><div class='d'>+</div></button><button class='call' data-k='call'><span class='icon fill'>call</span></button><button class='erase' data-k='erase'><span class='icon'>backspace</span></button></div></div>");
+    // Recents and Contacts.
+    markup.push_str("<div class='page hidden'><div class='big'>Recents</div><div class='group recents'></div><div class='empty no-calls'><span class='icon'>history</span><div>No calls yet</div></div></div>");
+    markup.push_str("<div class='page hidden'><div class='big'>Contacts</div><div class='group people'></div><div class='empty no-people'><span class='icon'>person</span><div>No contacts yet</div></div></div>");
+    markup.push_str("</div><div class='tabs'>");
+    markup.push_str("<button class='tab on' data-k='tab0'><span class='icon'>dialpad</span><span>Keypad</span></button>");
+    markup.push_str("<button class='tab' data-k='tab1'><span class='icon'>history</span><span>Recents</span></button>");
+    markup.push_str("<button class='tab' data-k='tab2'><span class='icon'>person</span><span>Contacts</span></button>");
+    markup.push_str("</div></div>");
+    var why = alloc.String.init(a);
+    if not dom.set_markup(host, item: dom.root(host), markup: markup.view(), why: &mut why, a: a) {
+        host_api.log(host, msg: why.view());
+    }
+    let app = first(host, selector: ".app", a: a);
+    dom.listen(host, item: app, kind: "click");
+    let pages = dom.query_all(host, scope: dom.root(host), selector: ".page", a: a);
+    let tabs = dom.query_all(host, scope: dom.root(host), selector: ".tab", a: a);
+    var state = Phone {
+        tab: KEYPAD,
+        number: alloc.String.init(a),
+        shown: first(host, selector: ".number", a: a),
+        pages: [pages.items()[0], pages.items()[1], pages.items()[2]],
+        tabs: [tabs.items()[0], tabs.items()[1], tabs.items()[2]],
+        recents: first(host, selector: ".recents", a: a),
+        no_calls: first(host, selector: ".no-calls", a: a),
+        people: first(host, selector: ".people", a: a),
+        no_people: first(host, selector: ".no-people", a: a),
+        calls_seen: -1,
+        people_seen: -1,
+    };
+    refresh(&mut state, host: host, a: a);
+    return state;
+}
+
+/// A key of the pad: its digit over its letters.
+fn key(out: &mut alloc.String, digit: u32, letters: str) {
+    out.push_str("<button class='key' data-k='d");
+    out.push_u64(digit as u64);
+    out.push_str("'><div class='d'>");
+    out.push_u64(digit as u64);
+    out.push_str("</div>");
+    if letters.len() > 0 {
+        out.push_str("<div class='l'>");
+        out.push_str(letters);
+        out.push_str("</div>");
+    }
+    out.push_str("</button>");
+}
+
+/// The nth of s's fields, parted by commas.
+fn field(s: str, n: u32) -> str {
+    var at: usize = 0;
+    var k: u32 = 0;
+    var from: usize = 0;
+    while at <= s.len() : (at += 1) {
+        if at == s.len() or s.bytes()[at] == ',' {
+            if k == n {
+                return s[from..at];
+            }
+            k += 1;
+            from = at + 1;
+        }
+    }
+    return "";
+}
+
+fn update(state: &mut Phone, host: &mut std.Host, a: alloc.Allocator) {
+    for e in dom.events(host, a: a).items() {
+        if e.kind.view().eq("click") {
+            match key_of(host, n: e.target, a: a) {
+                some(k) => { press(state, host: host, k: k.view(), a: a); }
+                none => { }
+            }
+        }
+    }
+    // Calls had and contacts kept while it was away, or while it shows.
+    refresh(state, host: host, a: a);
+}
+
+fn press(state: &mut Phone, host: &mut std.Host, k: str, a: alloc.Allocator) {
+    if k.starts_with("tab") {
+        show(state, host: host, tab: (k.bytes()[3] - '0') as u32);
+    } else if k.starts_with("d") {
+        state.number.push_str(k[1..k.len()]);
+        show_number(state, host: host);
+    } else if k.eq("erase") {
+        if state.number.len() > 0 {
+            var kept = alloc.String.init(a);
+            kept.push_str(state.number.view()[0..state.number.len() - 1]);
+            state.number = kept;
+            show_number(state, host: host);
+        }
+    } else if k.eq("call") {
+        if state.number.len() > 0 {
+            telephony.dial(host, number: state.number.view());
+        }
+    } else if k.starts_with("to:") {
+        telephony.dial(host, number: k[3..k.len()]);
+    }
+}
+
+/// Section tab shown, its tab marked.
+fn show(state: &mut Phone, host: &mut std.Host, tab: u32) {
+    if tab > CONTACTS {
+        return;
+    }
+    state.tab = tab;
+    var k: usize = 0;
+    while k < 3 : (k += 1) {
+        dom.toggle_class(host, item: state.pages[k], name: "hidden", on: k as u32 != tab);
+        dom.toggle_class(host, item: state.tabs[k], name: "on", on: k as u32 == tab);
+    }
+}
+
+fn show_number(state: &mut Phone, host: &mut std.Host) {
+    if state.number.len() == 0 {
+        dom.set_text(host, item: state.shown, text: "Enter a number");
+    } else {
+        dom.set_text(host, item: state.shown, text: state.number.view());
+    }
+    dom.toggle_class(host, item: state.shown, name: "none", on: state.number.len() == 0);
 }
 
 /// The name the contacts have for number; the number when they have none.
@@ -43,95 +197,116 @@ fn two(s: &mut alloc.String, n: i64) {
     s.push_u64(n as u64);
 }
 
-/// A call's line under its name: how it went, and when, as the user reads
-/// the time.
-fn said_of(c: &telephony.Call, offset_minutes: i64, a: alloc.Allocator) -> alloc.String {
-    var s = alloc.String.init(a);
-    if c.incoming and not c.answered {
-        s.push_str("Missed");
-    } else if c.incoming {
-        s.push_str("Incoming");
-    } else {
-        s.push_str("Outgoing");
+/// A row: the name's first letter on its color, the name over what is
+/// said of it (its icon first, if any), and at the right a handset; a tap
+/// calls number.
+fn row(out: &mut alloc.String, name: str, number: str, icon: str, said: str, missed: bool, a: alloc.Allocator) {
+    out.push_str("<div class='row' data-k='to:");
+    appkit.escaped(out, s: number);
+    out.push_str("'><div class='avatar' style='background: ");
+    out.push_str(appkit.avatar_color(name));
+    out.push_str("'>");
+    let letter = appkit.initial(name, a: a);
+    appkit.escaped(out, s: letter.view());
+    out.push_str("</div><div class='lines'><div class='primary");
+    if missed {
+        out.push_str(" missed");
     }
-    s.push_str(" · ");
-    var minutes = (c.at_millis / 60000 + offset_minutes) % 1440;
-    if minutes < 0 {
-        minutes += 1440;
+    out.push_str("'>");
+    appkit.escaped(out, s: name);
+    out.push_str("</div><div class='secondary how'>");
+    if icon.len() > 0 {
+        out.push_str("<span class='icon'>");
+        out.push_str(icon);
+        out.push_str("</span>");
     }
-    two(&mut s, n: minutes / 60);
-    s.push_str(":");
-    two(&mut s, n: minutes % 60);
-    return s;
+    out.push_str("<span>");
+    appkit.escaped(out, s: said);
+    out.push_str("</span></div></div><span class='icon fill again'>call</span></div>");
 }
 
-fn keypad(state: &mut Phone, host: &mut std.Host, a: alloc.Allocator) {
-    var shown = alloc.String.from("Enter a number", a);
-    if state.number.len() > 0 {
-        shown = alloc.String.from(state.number.view(), a);
-    }
-    host_api.ui_heading(host, text: shown.view(), level: 1);
-    var k: usize = 0;
-    while k < 12 : (k += 1) {
-        if k % 3 == 0 {
-            host_api.ui_begin(host, kind: "row");
-        }
-        let key = KEYS[k..k + 1];
-        if host_api.ui_button(host, text: key) {
-            state.number.push_str(key);
-        }
-        if k % 3 == 2 {
-            host_api.ui_end(host);
-        }
-    }
-    host_api.ui_begin(host, kind: "row");
-    if host_api.ui_button(host, text: "+") {
-        state.number.push_str("+");
-    }
-    if host_api.ui_button(host, text: "⌫") and state.number.len() > 0 {
-        var kept = alloc.String.init(a);
-        kept.push_str(state.number.view()[0..state.number.len() - 1]);
-        state.number = kept;
-    }
-    if host_api.ui_button(host, text: "Call") and state.number.len() > 0 {
-        telephony.dial(host, number: state.number.view());
-    }
-    host_api.ui_end(host);
-}
-
-fn update(state: &mut Phone, host: &mut std.Host, a: alloc.Allocator) {
-    var tabs = alloc.List(alloc.String).init(a);
-    tabs.push(alloc.String.from("Keypad", a));
-    tabs.push(alloc.String.from("Recents", a));
-    tabs.push(alloc.String.from("Contacts", a));
-    state.tab = host_api.ui_choice(host, options: &tabs, selected: state.tab, a: a);
+/// The lists made again when the calls or the contacts changed.
+fn refresh(state: &mut Phone, host: &mut std.Host, a: alloc.Allocator) {
     let people = contacts.list(host, a: a);
-    if state.tab == RECENTS {
-        let had = telephony.history(host, a: a);
-        if had.len() == 0 {
-            host_api.ui_label(host, text: "No calls yet");
-        }
-        let offset = host_api.utc_offset(host) as i64;
-        var k = had.len();
-        while k > 0 {
-            k -= 1;
-            let c = &had.items()[k];
-            let name = who(&people, number: c.number.view(), a: a);
-            let said = said_of(c, offset_minutes: offset, a: a);
-            if host_api.ui_tile(host, title: name.view(), subtitle: said.view()) {
-                telephony.dial(host, number: c.number.view());
-            }
-        }
-    } else if state.tab == CONTACTS {
-        if people.len() == 0 {
-            host_api.ui_label(host, text: "No contacts yet");
-        }
-        for c in people.items() {
-            if host_api.ui_tile(host, title: c.name.view(), subtitle: c.number.view()) {
-                telephony.dial(host, number: c.number.view());
-            }
-        }
-    } else {
-        keypad(state, host: host, a: a);
+    let had = telephony.history(host, a: a);
+    var calls_mark = had.len() as i64;
+    if had.len() > 0 {
+        calls_mark = calls_mark * 1000003 + had.items()[had.len() - 1].at_millis;
     }
+    var people_mark = people.len() as i64;
+    for c in people.items() {
+        people_mark = people_mark * 31 + c.name.len() as i64 + c.number.len() as i64;
+    }
+    if calls_mark == state.calls_seen and people_mark == state.people_seen {
+        return;
+    }
+    state.calls_seen = calls_mark;
+    state.people_seen = people_mark;
+    let offset = host_api.utc_offset(host) as i64;
+    var calls = alloc.String.init(a);
+    var k = had.len();
+    while k > 0 {
+        k -= 1;
+        let c = &had.items()[k];
+        let name = who(&people, number: c.number.view(), a: a);
+        var said = alloc.String.init(a);
+        var icon = "call_made";
+        let missed = c.incoming and not c.answered;
+        if missed {
+            said.push_str("Missed");
+            icon = "call_missed";
+        } else if c.incoming {
+            said.push_str("Incoming");
+            icon = "call_received";
+        } else {
+            said.push_str("Outgoing");
+        }
+        said.push_str(" · ");
+        var minutes = (c.at_millis / 60000 + offset) % 1440;
+        if minutes < 0 {
+            minutes += 1440;
+        }
+        two(&mut said, n: minutes / 60);
+        said.push_str(":");
+        two(&mut said, n: minutes % 60);
+        row(&mut calls, name: name.view(), number: c.number.view(), icon: icon, said: said.view(), missed: missed, a: a);
+    }
+    var listed = alloc.String.init(a);
+    for c in people.items() {
+        row(&mut listed, name: c.name.view(), number: c.number.view(), icon: "", said: c.number.view(), missed: false, a: a);
+    }
+    var why = alloc.String.init(a);
+    if not dom.set_markup(host, item: state.recents, markup: calls.view(), why: &mut why, a: a) {
+        host_api.log(host, msg: why.view());
+    }
+    if not dom.set_markup(host, item: state.people, markup: listed.view(), why: &mut why, a: a) {
+        host_api.log(host, msg: why.view());
+    }
+    dom.toggle_class(host, item: state.recents, name: "hidden", on: had.len() == 0);
+    dom.toggle_class(host, item: state.no_calls, name: "hidden", on: had.len() > 0);
+    dom.toggle_class(host, item: state.people, name: "hidden", on: people.len() == 0);
+    dom.toggle_class(host, item: state.no_people, name: "hidden", on: people.len() > 0);
+}
+
+/// The first node under the page that selector finds; 0 for none.
+fn first(host: &mut std.Host, selector: str, a: alloc.Allocator) -> u32 {
+    let found = dom.query_all(host, scope: dom.root(host), selector: selector, a: a);
+    if found.len() == 0 {
+        return 0;
+    }
+    return found.items()[0];
+}
+
+/// The key a click on n is: its data-k, or its nearest ancestor's.
+fn key_of(host: &mut std.Host, n: u32, a: alloc.Allocator) -> ?alloc.String {
+    var at = n;
+    var hops: u32 = 0;
+    while at != 0 and hops < 8 : (hops += 1) {
+        match dom.get_attribute(host, item: at, name: "data-k", a: a) {
+            some(k) => { return k; }
+            none => { }
+        }
+        at = dom.parent(host, item: at) orelse 0;
+    }
+    return none;
 }

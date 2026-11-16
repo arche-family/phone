@@ -1,133 +1,875 @@
-=== headless run: 6 frames ===
+=== headless run: 8 frames ===
 
 --- frame 0  (clicks fed to guest: []) ---
-   choice0 : [Keypad] | Recents | Contacts
-   heading1 : "Enter a number"
-   begin row#0
-     button0 : "1"
-     button1 : "2"
-     button2 : "3"
-   end
-   begin row#1
-     button3 : "4"
-     button4 : "5"
-     button5 : "6"
-   end
-   begin row#2
-     button6 : "7"
-     button7 : "8"
-     button8 : "9"
-   end
-   begin row#3
-     button9 : "*"
-     button10 : "0"
-     button11 : "#"
-   end
-   begin row#4
-     button12 : "+"
-     button13 : "⌫"
-     button14 : "Call"
-   end
+   [page] 103 nodes
+   #1 body
+     #2 div.app {click}
+       #3 div.content
+         #4 div.dial.page
+           #5 div.number.none
+             #6 "Enter a number"
+           #7 div.pad
+             #8 button.key [data-k="d1"]
+               #9 div.d
+                 #10 "1"
+             #11 button.key [data-k="d2"]
+               #12 div.d
+                 #13 "2"
+               #14 div.l
+                 #15 "ABC"
+             #16 button.key [data-k="d3"]
+               #17 div.d
+                 #18 "3"
+               #19 div.l
+                 #20 "DEF"
+             #21 button.key [data-k="d4"]
+               #22 div.d
+                 #23 "4"
+               #24 div.l
+                 #25 "GHI"
+             #26 button.key [data-k="d5"]
+               #27 div.d
+                 #28 "5"
+               #29 div.l
+                 #30 "JKL"
+             #31 button.key [data-k="d6"]
+               #32 div.d
+                 #33 "6"
+               #34 div.l
+                 #35 "MNO"
+             #36 button.key [data-k="d7"]
+               #37 div.d
+                 #38 "7"
+               #39 div.l
+                 #40 "PQRS"
+             #41 button.key [data-k="d8"]
+               #42 div.d
+                 #43 "8"
+               #44 div.l
+                 #45 "TUV"
+             #46 button.key [data-k="d9"]
+               #47 div.d
+                 #48 "9"
+               #49 div.l
+                 #50 "WXYZ"
+             #51 button.key [data-k="d*"]
+               #52 div.d
+                 #53 "*"
+             #54 button.key [data-k="d0"]
+               #55 div.d
+                 #56 "0"
+             #57 button.key [data-k="d#"]
+               #58 div.d
+                 #59 "#"
+           #60 div.bottom
+             #61 button.key.plus [data-k="d+"]
+               #62 div.d
+                 #63 "+"
+             #64 button.call [data-k="call"]
+               #65 span.icon.fill
+                 #66 "call"
+             #67 button.erase [data-k="erase"]
+               #68 span.icon
+                 #69 "backspace"
+         #70 div.page.hidden
+           #71 div.big
+             #72 "Recents"
+           #73 div.group.recents.hidden
+           #74 div.empty.no-calls
+             #75 span.icon
+               #76 "history"
+             #77 div
+               #78 "No calls yet"
+         #79 div.page.hidden
+           #80 div.big
+             #81 "Contacts"
+           #82 div.group.people.hidden
+           #83 div.empty.no-people
+             #84 span.icon
+               #85 "person"
+             #86 div
+               #87 "No contacts yet"
+       #88 div.tabs
+         #89 button.tab.on [data-k="tab0"]
+           #90 span.icon
+             #91 "dialpad"
+           #92 span
+             #93 "Keypad"
+         #94 button.tab [data-k="tab1"]
+           #95 span.icon
+             #96 "history"
+           #97 span
+             #98 "Recents"
+         #99 button.tab [data-k="tab2"]
+           #100 span.icon
+             #101 "person"
+           #102 span
+             #103 "Contacts"
    [call] arche:phone/contacts@0.1.0#list()
+   [call] arche:phone/telephony@0.1.0#history()
+   [call] arche:phone/contacts@0.1.0#list()
+   [call] arche:phone/telephony@0.1.0#history()
 
---- frame 1  (clicks fed to guest: [12]) ---
-   choice0 : [Keypad] | Recents | Contacts
-   heading1 : "Enter a number"
-   begin row#0
-     button0 : "1"
-     button1 : "2"
-     button2 : "3"
-   end
-   begin row#1
-     button3 : "4"
-     button4 : "5"
-     button5 : "6"
-   end
-   begin row#2
-     button6 : "7"
-     button7 : "8"
-     button8 : "9"
-   end
-   begin row#3
-     button9 : "*"
-     button10 : "0"
-     button11 : "#"
-   end
-   begin row#4
-     button12 : "+"
-     button13 : "⌫"
-     button14 : "Call"
-   end
+--- frame 1  (clicks fed to guest: []) ---
+   [tap] #61
+   [page] 103 nodes
+   #1 body
+     #2 div.app {click}
+       #3 div.content
+         #4 div.dial.page
+           #5 div.number
+             #104 "+"
+           #7 div.pad
+             #8 button.key [data-k="d1"]
+               #9 div.d
+                 #10 "1"
+             #11 button.key [data-k="d2"]
+               #12 div.d
+                 #13 "2"
+               #14 div.l
+                 #15 "ABC"
+             #16 button.key [data-k="d3"]
+               #17 div.d
+                 #18 "3"
+               #19 div.l
+                 #20 "DEF"
+             #21 button.key [data-k="d4"]
+               #22 div.d
+                 #23 "4"
+               #24 div.l
+                 #25 "GHI"
+             #26 button.key [data-k="d5"]
+               #27 div.d
+                 #28 "5"
+               #29 div.l
+                 #30 "JKL"
+             #31 button.key [data-k="d6"]
+               #32 div.d
+                 #33 "6"
+               #34 div.l
+                 #35 "MNO"
+             #36 button.key [data-k="d7"]
+               #37 div.d
+                 #38 "7"
+               #39 div.l
+                 #40 "PQRS"
+             #41 button.key [data-k="d8"]
+               #42 div.d
+                 #43 "8"
+               #44 div.l
+                 #45 "TUV"
+             #46 button.key [data-k="d9"]
+               #47 div.d
+                 #48 "9"
+               #49 div.l
+                 #50 "WXYZ"
+             #51 button.key [data-k="d*"]
+               #52 div.d
+                 #53 "*"
+             #54 button.key [data-k="d0"]
+               #55 div.d
+                 #56 "0"
+             #57 button.key [data-k="d#"]
+               #58 div.d
+                 #59 "#"
+           #60 div.bottom
+             #61 button.key.plus [data-k="d+"]
+               #62 div.d
+                 #63 "+"
+             #64 button.call [data-k="call"]
+               #65 span.icon.fill
+                 #66 "call"
+             #67 button.erase [data-k="erase"]
+               #68 span.icon
+                 #69 "backspace"
+         #70 div.page.hidden
+           #71 div.big
+             #72 "Recents"
+           #73 div.group.recents.hidden
+           #74 div.empty.no-calls
+             #75 span.icon
+               #76 "history"
+             #77 div
+               #78 "No calls yet"
+         #79 div.page.hidden
+           #80 div.big
+             #81 "Contacts"
+           #82 div.group.people.hidden
+           #83 div.empty.no-people
+             #84 span.icon
+               #85 "person"
+             #86 div
+               #87 "No contacts yet"
+       #88 div.tabs
+         #89 button.tab.on [data-k="tab0"]
+           #90 span.icon
+             #91 "dialpad"
+           #92 span
+             #93 "Keypad"
+         #94 button.tab [data-k="tab1"]
+           #95 span.icon
+             #96 "history"
+           #97 span
+             #98 "Recents"
+         #99 button.tab [data-k="tab2"]
+           #100 span.icon
+             #101 "person"
+           #102 span
+             #103 "Contacts"
    [call] arche:phone/contacts@0.1.0#list()
+   [call] arche:phone/telephony@0.1.0#history()
 
---- frame 2  (clicks fed to guest: [0]) ---
-   choice0 : [Keypad] | Recents | Contacts
-   heading1 : "+"
-   begin row#0
-     button0 : "1"
-     button1 : "2"
-     button2 : "3"
-   end
-   begin row#1
-     button3 : "4"
-     button4 : "5"
-     button5 : "6"
-   end
-   begin row#2
-     button6 : "7"
-     button7 : "8"
-     button8 : "9"
-   end
-   begin row#3
-     button9 : "*"
-     button10 : "0"
-     button11 : "#"
-   end
-   begin row#4
-     button12 : "+"
-     button13 : "⌫"
-     button14 : "Call"
-   end
+--- frame 2  (clicks fed to guest: []) ---
+   [tap] #8
+   [page] 103 nodes
+   #1 body
+     #2 div.app {click}
+       #3 div.content
+         #4 div.dial.page
+           #5 div.number
+             #105 "+1"
+           #7 div.pad
+             #8 button.key [data-k="d1"]
+               #9 div.d
+                 #10 "1"
+             #11 button.key [data-k="d2"]
+               #12 div.d
+                 #13 "2"
+               #14 div.l
+                 #15 "ABC"
+             #16 button.key [data-k="d3"]
+               #17 div.d
+                 #18 "3"
+               #19 div.l
+                 #20 "DEF"
+             #21 button.key [data-k="d4"]
+               #22 div.d
+                 #23 "4"
+               #24 div.l
+                 #25 "GHI"
+             #26 button.key [data-k="d5"]
+               #27 div.d
+                 #28 "5"
+               #29 div.l
+                 #30 "JKL"
+             #31 button.key [data-k="d6"]
+               #32 div.d
+                 #33 "6"
+               #34 div.l
+                 #35 "MNO"
+             #36 button.key [data-k="d7"]
+               #37 div.d
+                 #38 "7"
+               #39 div.l
+                 #40 "PQRS"
+             #41 button.key [data-k="d8"]
+               #42 div.d
+                 #43 "8"
+               #44 div.l
+                 #45 "TUV"
+             #46 button.key [data-k="d9"]
+               #47 div.d
+                 #48 "9"
+               #49 div.l
+                 #50 "WXYZ"
+             #51 button.key [data-k="d*"]
+               #52 div.d
+                 #53 "*"
+             #54 button.key [data-k="d0"]
+               #55 div.d
+                 #56 "0"
+             #57 button.key [data-k="d#"]
+               #58 div.d
+                 #59 "#"
+           #60 div.bottom
+             #61 button.key.plus [data-k="d+"]
+               #62 div.d
+                 #63 "+"
+             #64 button.call [data-k="call"]
+               #65 span.icon.fill
+                 #66 "call"
+             #67 button.erase [data-k="erase"]
+               #68 span.icon
+                 #69 "backspace"
+         #70 div.page.hidden
+           #71 div.big
+             #72 "Recents"
+           #73 div.group.recents.hidden
+           #74 div.empty.no-calls
+             #75 span.icon
+               #76 "history"
+             #77 div
+               #78 "No calls yet"
+         #79 div.page.hidden
+           #80 div.big
+             #81 "Contacts"
+           #82 div.group.people.hidden
+           #83 div.empty.no-people
+             #84 span.icon
+               #85 "person"
+             #86 div
+               #87 "No contacts yet"
+       #88 div.tabs
+         #89 button.tab.on [data-k="tab0"]
+           #90 span.icon
+             #91 "dialpad"
+           #92 span
+             #93 "Keypad"
+         #94 button.tab [data-k="tab1"]
+           #95 span.icon
+             #96 "history"
+           #97 span
+             #98 "Recents"
+         #99 button.tab [data-k="tab2"]
+           #100 span.icon
+             #101 "person"
+           #102 span
+             #103 "Contacts"
    [call] arche:phone/contacts@0.1.0#list()
+   [call] arche:phone/telephony@0.1.0#history()
 
---- frame 3  (clicks fed to guest: [14]) ---
-   choice0 : [Keypad] | Recents | Contacts
-   heading1 : "+1"
-   begin row#0
-     button0 : "1"
-     button1 : "2"
-     button2 : "3"
-   end
-   begin row#1
-     button3 : "4"
-     button4 : "5"
-     button5 : "6"
-   end
-   begin row#2
-     button6 : "7"
-     button7 : "8"
-     button8 : "9"
-   end
-   begin row#3
-     button9 : "*"
-     button10 : "0"
-     button11 : "#"
-   end
-   begin row#4
-     button12 : "+"
-     button13 : "⌫"
-     button14 : "Call"
-   end
+--- frame 3  (clicks fed to guest: []) ---
+   [tap] #11
+   [page] 103 nodes
+   #1 body
+     #2 div.app {click}
+       #3 div.content
+         #4 div.dial.page
+           #5 div.number
+             #106 "+12"
+           #7 div.pad
+             #8 button.key [data-k="d1"]
+               #9 div.d
+                 #10 "1"
+             #11 button.key [data-k="d2"]
+               #12 div.d
+                 #13 "2"
+               #14 div.l
+                 #15 "ABC"
+             #16 button.key [data-k="d3"]
+               #17 div.d
+                 #18 "3"
+               #19 div.l
+                 #20 "DEF"
+             #21 button.key [data-k="d4"]
+               #22 div.d
+                 #23 "4"
+               #24 div.l
+                 #25 "GHI"
+             #26 button.key [data-k="d5"]
+               #27 div.d
+                 #28 "5"
+               #29 div.l
+                 #30 "JKL"
+             #31 button.key [data-k="d6"]
+               #32 div.d
+                 #33 "6"
+               #34 div.l
+                 #35 "MNO"
+             #36 button.key [data-k="d7"]
+               #37 div.d
+                 #38 "7"
+               #39 div.l
+                 #40 "PQRS"
+             #41 button.key [data-k="d8"]
+               #42 div.d
+                 #43 "8"
+               #44 div.l
+                 #45 "TUV"
+             #46 button.key [data-k="d9"]
+               #47 div.d
+                 #48 "9"
+               #49 div.l
+                 #50 "WXYZ"
+             #51 button.key [data-k="d*"]
+               #52 div.d
+                 #53 "*"
+             #54 button.key [data-k="d0"]
+               #55 div.d
+                 #56 "0"
+             #57 button.key [data-k="d#"]
+               #58 div.d
+                 #59 "#"
+           #60 div.bottom
+             #61 button.key.plus [data-k="d+"]
+               #62 div.d
+                 #63 "+"
+             #64 button.call [data-k="call"]
+               #65 span.icon.fill
+                 #66 "call"
+             #67 button.erase [data-k="erase"]
+               #68 span.icon
+                 #69 "backspace"
+         #70 div.page.hidden
+           #71 div.big
+             #72 "Recents"
+           #73 div.group.recents.hidden
+           #74 div.empty.no-calls
+             #75 span.icon
+               #76 "history"
+             #77 div
+               #78 "No calls yet"
+         #79 div.page.hidden
+           #80 div.big
+             #81 "Contacts"
+           #82 div.group.people.hidden
+           #83 div.empty.no-people
+             #84 span.icon
+               #85 "person"
+             #86 div
+               #87 "No contacts yet"
+       #88 div.tabs
+         #89 button.tab.on [data-k="tab0"]
+           #90 span.icon
+             #91 "dialpad"
+           #92 span
+             #93 "Keypad"
+         #94 button.tab [data-k="tab1"]
+           #95 span.icon
+             #96 "history"
+           #97 span
+             #98 "Recents"
+         #99 button.tab [data-k="tab2"]
+           #100 span.icon
+             #101 "person"
+           #102 span
+             #103 "Contacts"
    [call] arche:phone/contacts@0.1.0#list()
-   [call] arche:phone/telephony@0.1.0#dial("+1")
+   [call] arche:phone/telephony@0.1.0#history()
 
 --- frame 4  (clicks fed to guest: []) ---
-   choice0 : Keypad | [Recents] | Contacts
-   label   : "No calls yet"
+   [tap] #67
+   [page] 103 nodes
+   #1 body
+     #2 div.app {click}
+       #3 div.content
+         #4 div.dial.page
+           #5 div.number
+             #107 "+1"
+           #7 div.pad
+             #8 button.key [data-k="d1"]
+               #9 div.d
+                 #10 "1"
+             #11 button.key [data-k="d2"]
+               #12 div.d
+                 #13 "2"
+               #14 div.l
+                 #15 "ABC"
+             #16 button.key [data-k="d3"]
+               #17 div.d
+                 #18 "3"
+               #19 div.l
+                 #20 "DEF"
+             #21 button.key [data-k="d4"]
+               #22 div.d
+                 #23 "4"
+               #24 div.l
+                 #25 "GHI"
+             #26 button.key [data-k="d5"]
+               #27 div.d
+                 #28 "5"
+               #29 div.l
+                 #30 "JKL"
+             #31 button.key [data-k="d6"]
+               #32 div.d
+                 #33 "6"
+               #34 div.l
+                 #35 "MNO"
+             #36 button.key [data-k="d7"]
+               #37 div.d
+                 #38 "7"
+               #39 div.l
+                 #40 "PQRS"
+             #41 button.key [data-k="d8"]
+               #42 div.d
+                 #43 "8"
+               #44 div.l
+                 #45 "TUV"
+             #46 button.key [data-k="d9"]
+               #47 div.d
+                 #48 "9"
+               #49 div.l
+                 #50 "WXYZ"
+             #51 button.key [data-k="d*"]
+               #52 div.d
+                 #53 "*"
+             #54 button.key [data-k="d0"]
+               #55 div.d
+                 #56 "0"
+             #57 button.key [data-k="d#"]
+               #58 div.d
+                 #59 "#"
+           #60 div.bottom
+             #61 button.key.plus [data-k="d+"]
+               #62 div.d
+                 #63 "+"
+             #64 button.call [data-k="call"]
+               #65 span.icon.fill
+                 #66 "call"
+             #67 button.erase [data-k="erase"]
+               #68 span.icon
+                 #69 "backspace"
+         #70 div.page.hidden
+           #71 div.big
+             #72 "Recents"
+           #73 div.group.recents.hidden
+           #74 div.empty.no-calls
+             #75 span.icon
+               #76 "history"
+             #77 div
+               #78 "No calls yet"
+         #79 div.page.hidden
+           #80 div.big
+             #81 "Contacts"
+           #82 div.group.people.hidden
+           #83 div.empty.no-people
+             #84 span.icon
+               #85 "person"
+             #86 div
+               #87 "No contacts yet"
+       #88 div.tabs
+         #89 button.tab.on [data-k="tab0"]
+           #90 span.icon
+             #91 "dialpad"
+           #92 span
+             #93 "Keypad"
+         #94 button.tab [data-k="tab1"]
+           #95 span.icon
+             #96 "history"
+           #97 span
+             #98 "Recents"
+         #99 button.tab [data-k="tab2"]
+           #100 span.icon
+             #101 "person"
+           #102 span
+             #103 "Contacts"
    [call] arche:phone/contacts@0.1.0#list()
    [call] arche:phone/telephony@0.1.0#history()
 
 --- frame 5  (clicks fed to guest: []) ---
-   choice0 : Keypad | Recents | [Contacts]
-   label   : "No contacts yet"
+   [tap] #64
+   [page] 103 nodes
+   #1 body
+     #2 div.app {click}
+       #3 div.content
+         #4 div.dial.page
+           #5 div.number
+             #107 "+1"
+           #7 div.pad
+             #8 button.key [data-k="d1"]
+               #9 div.d
+                 #10 "1"
+             #11 button.key [data-k="d2"]
+               #12 div.d
+                 #13 "2"
+               #14 div.l
+                 #15 "ABC"
+             #16 button.key [data-k="d3"]
+               #17 div.d
+                 #18 "3"
+               #19 div.l
+                 #20 "DEF"
+             #21 button.key [data-k="d4"]
+               #22 div.d
+                 #23 "4"
+               #24 div.l
+                 #25 "GHI"
+             #26 button.key [data-k="d5"]
+               #27 div.d
+                 #28 "5"
+               #29 div.l
+                 #30 "JKL"
+             #31 button.key [data-k="d6"]
+               #32 div.d
+                 #33 "6"
+               #34 div.l
+                 #35 "MNO"
+             #36 button.key [data-k="d7"]
+               #37 div.d
+                 #38 "7"
+               #39 div.l
+                 #40 "PQRS"
+             #41 button.key [data-k="d8"]
+               #42 div.d
+                 #43 "8"
+               #44 div.l
+                 #45 "TUV"
+             #46 button.key [data-k="d9"]
+               #47 div.d
+                 #48 "9"
+               #49 div.l
+                 #50 "WXYZ"
+             #51 button.key [data-k="d*"]
+               #52 div.d
+                 #53 "*"
+             #54 button.key [data-k="d0"]
+               #55 div.d
+                 #56 "0"
+             #57 button.key [data-k="d#"]
+               #58 div.d
+                 #59 "#"
+           #60 div.bottom
+             #61 button.key.plus [data-k="d+"]
+               #62 div.d
+                 #63 "+"
+             #64 button.call [data-k="call"]
+               #65 span.icon.fill
+                 #66 "call"
+             #67 button.erase [data-k="erase"]
+               #68 span.icon
+                 #69 "backspace"
+         #70 div.page.hidden
+           #71 div.big
+             #72 "Recents"
+           #73 div.group.recents.hidden
+           #74 div.empty.no-calls
+             #75 span.icon
+               #76 "history"
+             #77 div
+               #78 "No calls yet"
+         #79 div.page.hidden
+           #80 div.big
+             #81 "Contacts"
+           #82 div.group.people.hidden
+           #83 div.empty.no-people
+             #84 span.icon
+               #85 "person"
+             #86 div
+               #87 "No contacts yet"
+       #88 div.tabs
+         #89 button.tab.on [data-k="tab0"]
+           #90 span.icon
+             #91 "dialpad"
+           #92 span
+             #93 "Keypad"
+         #94 button.tab [data-k="tab1"]
+           #95 span.icon
+             #96 "history"
+           #97 span
+             #98 "Recents"
+         #99 button.tab [data-k="tab2"]
+           #100 span.icon
+             #101 "person"
+           #102 span
+             #103 "Contacts"
+   [call] arche:phone/telephony@0.1.0#dial("+1")
    [call] arche:phone/contacts@0.1.0#list()
+   [call] arche:phone/telephony@0.1.0#history()
+
+--- frame 6  (clicks fed to guest: []) ---
+   [tap] #94
+   [page] 103 nodes
+   #1 body
+     #2 div.app {click}
+       #3 div.content
+         #4 div.dial.page.hidden
+           #5 div.number
+             #107 "+1"
+           #7 div.pad
+             #8 button.key [data-k="d1"]
+               #9 div.d
+                 #10 "1"
+             #11 button.key [data-k="d2"]
+               #12 div.d
+                 #13 "2"
+               #14 div.l
+                 #15 "ABC"
+             #16 button.key [data-k="d3"]
+               #17 div.d
+                 #18 "3"
+               #19 div.l
+                 #20 "DEF"
+             #21 button.key [data-k="d4"]
+               #22 div.d
+                 #23 "4"
+               #24 div.l
+                 #25 "GHI"
+             #26 button.key [data-k="d5"]
+               #27 div.d
+                 #28 "5"
+               #29 div.l
+                 #30 "JKL"
+             #31 button.key [data-k="d6"]
+               #32 div.d
+                 #33 "6"
+               #34 div.l
+                 #35 "MNO"
+             #36 button.key [data-k="d7"]
+               #37 div.d
+                 #38 "7"
+               #39 div.l
+                 #40 "PQRS"
+             #41 button.key [data-k="d8"]
+               #42 div.d
+                 #43 "8"
+               #44 div.l
+                 #45 "TUV"
+             #46 button.key [data-k="d9"]
+               #47 div.d
+                 #48 "9"
+               #49 div.l
+                 #50 "WXYZ"
+             #51 button.key [data-k="d*"]
+               #52 div.d
+                 #53 "*"
+             #54 button.key [data-k="d0"]
+               #55 div.d
+                 #56 "0"
+             #57 button.key [data-k="d#"]
+               #58 div.d
+                 #59 "#"
+           #60 div.bottom
+             #61 button.key.plus [data-k="d+"]
+               #62 div.d
+                 #63 "+"
+             #64 button.call [data-k="call"]
+               #65 span.icon.fill
+                 #66 "call"
+             #67 button.erase [data-k="erase"]
+               #68 span.icon
+                 #69 "backspace"
+         #70 div.page
+           #71 div.big
+             #72 "Recents"
+           #73 div.group.recents.hidden
+           #74 div.empty.no-calls
+             #75 span.icon
+               #76 "history"
+             #77 div
+               #78 "No calls yet"
+         #79 div.page.hidden
+           #80 div.big
+             #81 "Contacts"
+           #82 div.group.people.hidden
+           #83 div.empty.no-people
+             #84 span.icon
+               #85 "person"
+             #86 div
+               #87 "No contacts yet"
+       #88 div.tabs
+         #89 button.tab [data-k="tab0"]
+           #90 span.icon
+             #91 "dialpad"
+           #92 span
+             #93 "Keypad"
+         #94 button.tab.on [data-k="tab1"]
+           #95 span.icon
+             #96 "history"
+           #97 span
+             #98 "Recents"
+         #99 button.tab [data-k="tab2"]
+           #100 span.icon
+             #101 "person"
+           #102 span
+             #103 "Contacts"
+   [call] arche:phone/contacts@0.1.0#list()
+   [call] arche:phone/telephony@0.1.0#history()
+
+--- frame 7  (clicks fed to guest: []) ---
+   [tap] #99
+   [page] 103 nodes
+   #1 body
+     #2 div.app {click}
+       #3 div.content
+         #4 div.dial.page.hidden
+           #5 div.number
+             #107 "+1"
+           #7 div.pad
+             #8 button.key [data-k="d1"]
+               #9 div.d
+                 #10 "1"
+             #11 button.key [data-k="d2"]
+               #12 div.d
+                 #13 "2"
+               #14 div.l
+                 #15 "ABC"
+             #16 button.key [data-k="d3"]
+               #17 div.d
+                 #18 "3"
+               #19 div.l
+                 #20 "DEF"
+             #21 button.key [data-k="d4"]
+               #22 div.d
+                 #23 "4"
+               #24 div.l
+                 #25 "GHI"
+             #26 button.key [data-k="d5"]
+               #27 div.d
+                 #28 "5"
+               #29 div.l
+                 #30 "JKL"
+             #31 button.key [data-k="d6"]
+               #32 div.d
+                 #33 "6"
+               #34 div.l
+                 #35 "MNO"
+             #36 button.key [data-k="d7"]
+               #37 div.d
+                 #38 "7"
+               #39 div.l
+                 #40 "PQRS"
+             #41 button.key [data-k="d8"]
+               #42 div.d
+                 #43 "8"
+               #44 div.l
+                 #45 "TUV"
+             #46 button.key [data-k="d9"]
+               #47 div.d
+                 #48 "9"
+               #49 div.l
+                 #50 "WXYZ"
+             #51 button.key [data-k="d*"]
+               #52 div.d
+                 #53 "*"
+             #54 button.key [data-k="d0"]
+               #55 div.d
+                 #56 "0"
+             #57 button.key [data-k="d#"]
+               #58 div.d
+                 #59 "#"
+           #60 div.bottom
+             #61 button.key.plus [data-k="d+"]
+               #62 div.d
+                 #63 "+"
+             #64 button.call [data-k="call"]
+               #65 span.icon.fill
+                 #66 "call"
+             #67 button.erase [data-k="erase"]
+               #68 span.icon
+                 #69 "backspace"
+         #70 div.page.hidden
+           #71 div.big
+             #72 "Recents"
+           #73 div.group.recents.hidden
+           #74 div.empty.no-calls
+             #75 span.icon
+               #76 "history"
+             #77 div
+               #78 "No calls yet"
+         #79 div.page
+           #80 div.big
+             #81 "Contacts"
+           #82 div.group.people.hidden
+           #83 div.empty.no-people
+             #84 span.icon
+               #85 "person"
+             #86 div
+               #87 "No contacts yet"
+       #88 div.tabs
+         #89 button.tab [data-k="tab0"]
+           #90 span.icon
+             #91 "dialpad"
+           #92 span
+             #93 "Keypad"
+         #94 button.tab [data-k="tab1"]
+           #95 span.icon
+             #96 "history"
+           #97 span
+             #98 "Recents"
+         #99 button.tab.on [data-k="tab2"]
+           #100 span.icon
+             #101 "person"
+           #102 span
+             #103 "Contacts"
+   [call] arche:phone/contacts@0.1.0#list()
+   [call] arche:phone/telephony@0.1.0#history()
