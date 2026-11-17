@@ -46,7 +46,7 @@ fn init(host: &mut std.Host, a: alloc.Allocator) -> Phone {
     _ = dom.add_stylesheet(host, css: kit.view());
     _ = dom.add_stylesheet(host, css: SHEET);
     var markup = alloc.String.init(a);
-    markup.push_str("<div class='app'><div class='content'>");
+    markup.push_str("<div class='app tabbed'><div class='content'>");
     // Keypad.
     markup.push_str("<div class='dial page'><div class='number none'>Enter a number</div><div class='pad'>");
     let letters = ",ABC,DEF,GHI,JKL,MNO,PQRS,TUV,WXYZ";
