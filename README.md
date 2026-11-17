@@ -2,11 +2,13 @@
 
 The Arche phone's dialer, written in [Arche](https://github.com/arche-family/arche-lang): a WebAssembly component of the Arche phone's world, built into the phone as one of its default apps and updated from its repository. That world is Nimadir's mini-app world and what a phone adds to it; its WIT is in `wit/` (from arche-os's `phone/wit`), and `world` names it.
 
-It works like Android's, in three tabs:
+It works like Android's, in three tabs, a swipe sideways going to the next or the one before:
 
 - Keypad: the number typed, `+` for a country's code, `⌫` for a key less, and Call. The phone's call screen takes the call from there, as it shows one that comes.
 - Recents: the calls the phone had, the latest first, each by its contact's name or its number, whether it came, was made or was missed, and when. A tap calls it back.
 - Contacts: the phone's contacts; a tap calls one.
+
+It speaks the phone's language, English, Uzbek or Russian, as the phone's locale says (`host-api`'s `locale`), and changes with it at once, the number typed and the tab shown kept.
 
 `manifest` says what it may do: make calls and read the calls the phone had (`telephony`), and read the contacts (`contacts`).
 

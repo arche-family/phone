@@ -3,7 +3,7 @@
 --- frame 0  (clicks fed to guest: []) ---
    [page] 103 nodes
    #1 body
-     #2 div.app.tabbed {click}
+     #2 div.app.tabbed {click swipe}
        #3 div.content
          #4 div.dial.page
            #5 div.number.none
@@ -114,7 +114,7 @@
    [tap] #61
    [page] 103 nodes
    #1 body
-     #2 div.app.tabbed {click}
+     #2 div.app.tabbed {click swipe}
        #3 div.content
          #4 div.dial.page
            #5 div.number
@@ -223,7 +223,7 @@
    [tap] #8
    [page] 103 nodes
    #1 body
-     #2 div.app.tabbed {click}
+     #2 div.app.tabbed {click swipe}
        #3 div.content
          #4 div.dial.page
            #5 div.number
@@ -332,7 +332,7 @@
    [tap] #11
    [page] 103 nodes
    #1 body
-     #2 div.app.tabbed {click}
+     #2 div.app.tabbed {click swipe}
        #3 div.content
          #4 div.dial.page
            #5 div.number
@@ -441,7 +441,7 @@
    [tap] #67
    [page] 103 nodes
    #1 body
-     #2 div.app.tabbed {click}
+     #2 div.app.tabbed {click swipe}
        #3 div.content
          #4 div.dial.page
            #5 div.number
@@ -550,7 +550,7 @@
    [tap] #64
    [page] 103 nodes
    #1 body
-     #2 div.app.tabbed {click}
+     #2 div.app.tabbed {click swipe}
        #3 div.content
          #4 div.dial.page
            #5 div.number
@@ -660,7 +660,7 @@
    [tap] #94
    [page] 103 nodes
    #1 body
-     #2 div.app.tabbed {click}
+     #2 div.app.tabbed {click swipe}
        #3 div.content
          #4 div.dial.page.hidden
            #5 div.number
@@ -769,7 +769,7 @@
    [tap] #99
    [page] 103 nodes
    #1 body
-     #2 div.app.tabbed {click}
+     #2 div.app.tabbed {click swipe}
        #3 div.content
          #4 div.dial.page.hidden
            #5 div.number

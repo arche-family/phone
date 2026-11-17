@@ -23,9 +23,19 @@ const KEYPAD: u32 = 0;
 const RECENTS: u32 = 1;
 const CONTACTS: u32 = 2;
 
+/// The phone's languages, as its locale says (host_api.locale): English,
+/// Uzbek (in Latin letters) and Russian.
+const EN: u32 = 0;
+const UZ: u32 = 1;
+const RU: u32 = 2;
+
 type Phone = struct {
     tab: u32,
     number: alloc.String,
+    /// The language the page is in, and the locale it is of: the page is
+    /// made again when the phone's changes.
+    lang: u32,
+    locale: alloc.String,
     /// The page's nodes: the number, each section's page and tab, and the
     /// lists and what they say when empty.
     shown: u32,
@@ -45,10 +55,38 @@ fn init(host: &mut std.Host, a: alloc.Allocator) -> Phone {
     let kit = appkit.css(a);
     _ = dom.add_stylesheet(host, css: kit.view());
     _ = dom.add_stylesheet(host, css: SHEET);
+    let locale = host_api.locale(host, a: a);
+    let lang = lang_of(locale.view());
+    var state = Phone {
+        tab: KEYPAD,
+        number: alloc.String.init(a),
+        lang: lang,
+        locale: locale,
+        shown: 0,
+        pages: [0, 0, 0],
+        tabs: [0, 0, 0],
+        recents: 0,
+        no_calls: 0,
+        people: 0,
+        no_people: 0,
+        calls_seen: -1,
+        people_seen: -1,
+    };
+    page(&mut state, host: host, a: a);
+    refresh(&mut state, host: host, a: a);
+    return state;
+}
+
+/// The page made, in the phone's language, the Keypad's tab on: its
+/// markup and the nodes it keeps; the lists are made by the next refresh.
+fn page(state: &mut Phone, host: &mut std.Host, a: alloc.Allocator) {
+    let lang = state.lang;
     var markup = alloc.String.init(a);
     markup.push_str("<div class='app tabbed'><div class='content'>");
     // Keypad.
-    markup.push_str("<div class='dial page'><div class='number none'>Enter a number</div><div class='pad'>");
+    markup.push_str("<div class='dial page'><div class='number none'>");
+    put(&mut markup, lang: lang, s: "Enter a number");
+    markup.push_str("</div><div class='pad'>");
     let letters = ",ABC,DEF,GHI,JKL,MNO,PQRS,TUV,WXYZ";
     var k: u32 = 1;
     while k <= 9 : (k += 1) {
@@ -59,12 +97,26 @@ fn init(host: &mut std.Host, a: alloc.Allocator) -> Phone {
     markup.push_str("<button class='key' data-k='d#'><div class='d'>#</div></button>");
     markup.push_str("</div><div class='bottom'><button class='key plus' data-k='d+'><div class='d'>+</div></button><button class='call' data-k='call'><span class='icon fill'>call</span></button><button class='erase' data-k='erase'><span class='icon'>backspace</span></button></div></div>");
     // Recents and Contacts.
-    markup.push_str("<div class='page hidden'><div class='big'>Recents</div><div class='group recents'></div><div class='empty no-calls'><span class='icon'>history</span><div>No calls yet</div></div></div>");
-    markup.push_str("<div class='page hidden'><div class='big'>Contacts</div><div class='group people'></div><div class='empty no-people'><span class='icon'>person</span><div>No contacts yet</div></div></div>");
+    markup.push_str("<div class='page hidden'><div class='big'>");
+    put(&mut markup, lang: lang, s: "Recents");
+    markup.push_str("</div><div class='group recents'></div><div class='empty no-calls'><span class='icon'>history</span><div>");
+    put(&mut markup, lang: lang, s: "No calls yet");
+    markup.push_str("</div></div></div>");
+    markup.push_str("<div class='page hidden'><div class='big'>");
+    put(&mut markup, lang: lang, s: "Contacts");
+    markup.push_str("</div><div class='group people'></div><div class='empty no-people'><span class='icon'>person</span><div>");
+    put(&mut markup, lang: lang, s: "No contacts yet");
+    markup.push_str("</div></div></div>");
     markup.push_str("</div><div class='tabs'>");
-    markup.push_str("<button class='tab on' data-k='tab0'><span class='icon'>dialpad</span><span>Keypad</span></button>");
-    markup.push_str("<button class='tab' data-k='tab1'><span class='icon'>history</span><span>Recents</span></button>");
-    markup.push_str("<button class='tab' data-k='tab2'><span class='icon'>person</span><span>Contacts</span></button>");
+    markup.push_str("<button class='tab on' data-k='tab0'><span class='icon'>dialpad</span><span>");
+    put(&mut markup, lang: lang, s: "Keypad");
+    markup.push_str("</span></button>");
+    markup.push_str("<button class='tab' data-k='tab1'><span class='icon'>history</span><span>");
+    put(&mut markup, lang: lang, s: "Recents");
+    markup.push_str("</span></button>");
+    markup.push_str("<button class='tab' data-k='tab2'><span class='icon'>person</span><span>");
+    put(&mut markup, lang: lang, s: "Contacts");
+    markup.push_str("</span></button>");
     markup.push_str("</div></div>");
     var why = alloc.String.init(a);
     if not dom.set_markup(host, item: dom.root(host), markup: markup.view(), why: &mut why, a: a) {
@@ -72,23 +124,117 @@ fn init(host: &mut std.Host, a: alloc.Allocator) -> Phone {
     }
     let app = first(host, selector: ".app", a: a);
     dom.listen(host, item: app, kind: "click");
+    // A swipe pages through the tabs (arche-os T12).
+    dom.listen(host, item: app, kind: "swipe");
     let pages = dom.query_all(host, scope: dom.root(host), selector: ".page", a: a);
     let tabs = dom.query_all(host, scope: dom.root(host), selector: ".tab", a: a);
-    var state = Phone {
-        tab: KEYPAD,
-        number: alloc.String.init(a),
-        shown: first(host, selector: ".number", a: a),
-        pages: [pages.items()[0], pages.items()[1], pages.items()[2]],
-        tabs: [tabs.items()[0], tabs.items()[1], tabs.items()[2]],
-        recents: first(host, selector: ".recents", a: a),
-        no_calls: first(host, selector: ".no-calls", a: a),
-        people: first(host, selector: ".people", a: a),
-        no_people: first(host, selector: ".no-people", a: a),
-        calls_seen: -1,
-        people_seen: -1,
-    };
-    refresh(&mut state, host: host, a: a);
-    return state;
+    state.shown = first(host, selector: ".number", a: a);
+    state.pages = [pages.items()[0], pages.items()[1], pages.items()[2]];
+    state.tabs = [tabs.items()[0], tabs.items()[1], tabs.items()[2]];
+    state.recents = first(host, selector: ".recents", a: a);
+    state.no_calls = first(host, selector: ".no-calls", a: a);
+    state.people = first(host, selector: ".people", a: a);
+    state.no_people = first(host, selector: ".no-people", a: a);
+    state.calls_seen = -1;
+    state.people_seen = -1;
+}
+
+/// The language of a locale: "uz-UZ" Uzbek, "ru-RU" Russian, any other
+/// English.
+fn lang_of(locale: str) -> u32 {
+    if locale.starts_with("uz") {
+        return UZ;
+    }
+    if locale.starts_with("ru") {
+        return RU;
+    }
+    return EN;
+}
+
+/// The English words s, in lang: s itself in English, and for words it
+/// has none for.
+fn say(lang: u32, s: str) -> str {
+    if lang == EN {
+        return s;
+    }
+    if s.eq("Enter a number") {
+        if lang == UZ {
+            return "Raqamni kiriting";
+        }
+        if lang == RU {
+            return "Введите номер";
+        }
+    }
+    if s.eq("Keypad") {
+        if lang == UZ {
+            return "Raqam terish";
+        }
+        if lang == RU {
+            return "Клавиатура";
+        }
+    }
+    if s.eq("Recents") {
+        if lang == UZ {
+            return "Soʻnggilar";
+        }
+        if lang == RU {
+            return "Недавние";
+        }
+    }
+    if s.eq("Contacts") {
+        if lang == UZ {
+            return "Kontaktlar";
+        }
+        if lang == RU {
+            return "Контакты";
+        }
+    }
+    if s.eq("No calls yet") {
+        if lang == UZ {
+            return "Hozircha qoʻngʻiroqlar yoʻq";
+        }
+        if lang == RU {
+            return "Вызовов пока нет";
+        }
+    }
+    if s.eq("No contacts yet") {
+        if lang == UZ {
+            return "Hozircha kontaktlar yoʻq";
+        }
+        if lang == RU {
+            return "Контактов пока нет";
+        }
+    }
+    if s.eq("Missed") {
+        if lang == UZ {
+            return "Javobsiz";
+        }
+        if lang == RU {
+            return "Пропущенный";
+        }
+    }
+    if s.eq("Incoming") {
+        if lang == UZ {
+            return "Kiruvchi";
+        }
+        if lang == RU {
+            return "Входящий";
+        }
+    }
+    if s.eq("Outgoing") {
+        if lang == UZ {
+            return "Chiquvchi";
+        }
+        if lang == RU {
+            return "Исходящий";
+        }
+    }
+    return s;
+}
+
+/// The English words s, in lang, onto markup out.
+fn put(out: &mut alloc.String, lang: u32, s: str) {
+    appkit.escaped(out, s: say(lang, s: s));
 }
 
 /// A key of the pad: its digit over its letters.
@@ -124,11 +270,27 @@ fn field(s: str, n: u32) -> str {
 }
 
 fn update(state: &mut Phone, host: &mut std.Host, a: alloc.Allocator) {
+    // The phone's language changed: the page made again in it, the number
+    // typed and the tab shown as they were.
+    let locale = host_api.locale(host, a: a);
+    if not locale.view().eq(state.locale.view()) {
+        state.lang = lang_of(locale.view());
+        state.locale = locale;
+        page(state, host: host, a: a);
+        show(state, host: host, tab: state.tab);
+        show_number(state, host: host);
+    }
     for e in dom.events(host, a: a).items() {
         if e.kind.view().eq("click") {
             match key_of(host, n: e.target, a: a) {
                 some(k) => { press(state, host: host, k: k.view(), a: a); }
                 none => { }
+            }
+        } else if e.kind.view().eq("swipe") {
+            if e.value.view().eq("left") and state.tab < CONTACTS {
+                show(state, host: host, tab: state.tab + 1);
+            } else if e.value.view().eq("right") and state.tab > KEYPAD {
+                show(state, host: host, tab: state.tab - 1);
             }
         }
     }
@@ -173,7 +335,7 @@ fn show(state: &mut Phone, host: &mut std.Host, tab: u32) {
 
 fn show_number(state: &mut Phone, host: &mut std.Host) {
     if state.number.len() == 0 {
-        dom.set_text(host, item: state.shown, text: "Enter a number");
+        dom.set_text(host, item: state.shown, text: say(state.lang, s: "Enter a number"));
     } else {
         dom.set_text(host, item: state.shown, text: state.number.view());
     }
@@ -253,13 +415,13 @@ fn refresh(state: &mut Phone, host: &mut std.Host, a: alloc.Allocator) {
         var icon = "call_made";
         let missed = c.incoming and not c.answered;
         if missed {
-            said.push_str("Missed");
+            said.push_str(say(state.lang, s: "Missed"));
             icon = "call_missed";
         } else if c.incoming {
-            said.push_str("Incoming");
+            said.push_str(say(state.lang, s: "Incoming"));
             icon = "call_received";
         } else {
-            said.push_str("Outgoing");
+            said.push_str(say(state.lang, s: "Outgoing"));
         }
         said.push_str(" · ");
         var minutes = (c.at_millis / 60000 + offset) % 1440;

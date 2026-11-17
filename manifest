@@ -1,6 +1,10 @@
 name: phone
 version: 1
 title: Phone
-about: Calls: the keypad, the calls the phone had, and its contacts
+about: Make calls, see recent calls and your contacts
+title.uz: Telefon
+about.uz: Qoʻngʻiroqlar, oxirgi qoʻngʻiroqlar va kontaktlar
+title.ru: Телефон
+about.ru: Звонки, недавние вызовы и контакты
 publisher: arche
 needs: telephony contacts
